@@ -1,4 +1,4 @@
-=import React from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { Check, Clock, Circle, Mail } from "lucide-react";
 import Navbar from "@/components/home/Navbar";
