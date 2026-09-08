@@ -1,0 +1,75 @@
+name: Deploy to GitHub Pages
+
+# Manual by default (Actions tab -> "Run workflow"). Uncomment the push
+# trigger below if you'd rather it deploy automatically on every push to main.
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+
+# Only the permissions this job actually needs. "contents: write" is what
+# lets the final step push the built site to the gh-pages branch.
+permissions:
+  contents: write
+
+# If someone re-runs this while a deploy is already in flight, cancel the
+# older one instead of racing two pushes to gh-pages.
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # -----------------------------------------------------------------
+      # Env safety
+      # -----------------------------------------------------------------
+      # Nothing here ever reads a committed .env file — that file should
+      # stay in .gitignore and never touch the repo. Anything the build
+      # actually needs at build time gets pulled from GitHub's encrypted
+      # repo secrets instead, and only exists for the life of this job.
+      #
+      # IMPORTANT: Vite inlines every VITE_-prefixed variable directly into
+      # the JS bundle it ships to browsers. That's fine for values that are
+      # already meant to be public (a Stripe *publishable* key, a public API
+      # base URL) — it is NOT fine for anything secret (a Stripe *secret*
+      # key, a private API token, a DB credential). Never add a real secret
+      # to this list; if a feature needs a real secret, it needs a small
+      # server somewhere, which a static GitHub Pages site can't provide.
+      - name: Build
+        env:
+          VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
+        run: npm run build
+
+      # -----------------------------------------------------------------
+      # Manual publish to gh-pages
+      # -----------------------------------------------------------------
+      # This treats dist/ as its own throwaway git repo, commits it, and
+      # force-pushes it as the gh-pages branch — no third-party deploy
+      # action involved. GITHUB_TOKEN is auto-issued by Actions for this
+      # run only and is scoped to this repo; it's never written to disk
+      # outside this step and expires when the job ends.
+      - name: Publish dist/ to gh-pages
+        working-directory: dist
+        run: |
+          touch .nojekyll
+          git init -q
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -q -b gh-pages
+          git add -A
+          git commit -q -m "Deploy ${{ github.sha }}"
+          git push --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages
