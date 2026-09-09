@@ -8,10 +8,9 @@ import { Menu, X } from "lucide-react";
 const navItems = [
   { label: "Home", to: "/", status: "done" },
   { label: "Downloads", to: "/downloads", status: "done" },
-  {label: "Proprietary", to: "/license", status: "done" },
-  { label: "Specs", status: "soon" },
-  { label: "Benchmarks", status: "soon" },
-  { label: "Docs", status: "soon" },
+  { label: "License", to: "/license", status: "done" },
+  { label: "Beta Docs", to: "/beta-docs", status: "done" },
+  { label: "Progress", to: "/progress", status: "done" },
 ];
 
 function NavLink({ item, onNavigate, size = "sm" }) {
