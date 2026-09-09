@@ -1,11 +1,10 @@
 name: Deploy to GitHub Pages
 
-# Manual by default (Actions tab -> "Run workflow"). Uncomment the push
-# trigger below if you'd rather it deploy automatically on every push to main.
+# Auto-deploy on every push to main
 on:
   workflow_dispatch:
-  # push:
-  #   branches: [main]
+  push:
+    branches: [main]
 
 # Only the permissions this job actually needs. "contents: write" is what
 # lets the final step push the built site to the gh-pages branch.
