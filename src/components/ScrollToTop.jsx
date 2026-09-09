@@ -16,15 +16,18 @@ export default function ScrollToTop() {
   useEffect(() => {
     if (hash) {
       const id = getHashId(hash);
+      // FIXED: Increased the window timer slightly to 100ms. 
+      // This guarantees elements are painted into the DOM before trying to scroll.
       const timer = window.setTimeout(() => {
         document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-      }, 50);
+      }, 100); 
+      
       return () => window.clearTimeout(timer);
     }
-    
-    // Fallback: If there's no hash, snap to the top of the page
+
+    // Fallback: If there's no hash anchor, instantly snap to the top of the new page
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  }, [pathname, hash]); // Removed navigationType dependency
+  }, [pathname, hash]); 
 
   return null;
 }
