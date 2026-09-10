@@ -9,7 +9,7 @@ const navItems = [
   { label: "Home", to: "/", status: "done" },
   { label: "Downloads", to: "/downloads", status: "done" },
   { label: "License", to: "/license", status: "done" },
-  { label: "Beta Docs", to: "/beta-docs", status: "done" },
+  { label: "Beta Docs", to: "/betadocs", status: "done" },
   { label: "Progress", to: "/progress", status: "done" },
 ];
 
